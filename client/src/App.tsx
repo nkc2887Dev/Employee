@@ -5,8 +5,10 @@ import { store } from './store';
 import MainLayout from './layouts/MainLayout';
 import EmployeeList from './pages/EmployeeList';
 import EmployeeForm from './pages/EmployeeForm';
+import EmployeeView from './pages/EmployeeView';
 import DepartmentList from './pages/DepartmentList';
 import DepartmentForm from './pages/DepartmentForm';
+import DepartmentView from './pages/DepartmentView';
 import Statistics from './pages/Statistics';
 import NotFound from './pages/NotFound';
 
@@ -30,11 +32,13 @@ function App() {
               <Route path="employees">
                 <Route index element={<EmployeeList />} />
                 <Route path="new" element={<EmployeeForm />} />
+                <Route path=":id" element={<EmployeeView />} />
                 <Route path=":id/edit" element={<EmployeeForm />} />
               </Route>
               <Route path="departments">
                 <Route index element={<DepartmentList />} />
                 <Route path="new" element={<DepartmentForm />} />
+                <Route path=":id" element={<DepartmentView />} />
                 <Route path=":id/edit" element={<DepartmentForm />} />
               </Route>
               <Route path="statistics" element={<Statistics />} />

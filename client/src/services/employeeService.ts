@@ -5,14 +5,15 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 export interface Employee {
   id: number;
   name: string;
-  position: string;
-  departmentId: number;
+  email: string;
+  phone: string;
+  dob: string;
+  department_id: number;
   salary: number;
-  joiningDate: string;
-  department?: {
-    id: number;
-    name: string;
-  };
+  status: 'active' | 'inactive';
+  photo?: string;
+  created_at?: string;
+  modified_at?: string;
 }
 
 export interface EmployeeFilters {
@@ -29,12 +30,28 @@ export interface EmployeeResponse {
 }
 
 export interface EmployeeStats {
-  departmentHighestSalary: { department: string; salary: number }[];
-  salaryRangeCount: { range: string; count: number }[];
-  youngestByDepartment: { department: string; name: string; age: number }[];
+  departmentHighestSalary: Array<{
+    department: string;
+    salary: number;
+  }>;
+  salaryRangeCount: Array<{
+    range: string;
+    count: number;
+  }>;
+  youngestByDepartment: Array<{
+    department: string;
+    name: string;
+    age: number;
+  }>;
 }
 
-export type EmployeeInput = Omit<Employee, 'id' | 'department'>
+export type EmployeeInput = Omit<Employee, 'id' | 'created_at' | 'modified_at'>;
+export type EmployeeUpdateInput = Partial<EmployeeInput>;
+
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+}
 
 export interface Statistics {
   totalEmployees: number;
@@ -49,27 +66,26 @@ export interface Statistics {
 }
 
 export const getAllEmployees = async (): Promise<Employee[]> => {
-  const response = await axios.get(`${API_URL}/employees`);
-  console.log('response: ', response);
-  return response.data;
+  const response = await axios.get<ApiResponse<Employee[]>>(`${API_URL}/employees`);
+  return response.data.data;
 };
 
 export const getEmployeeById = async (id: string): Promise<Employee> => {
-  const response = await axios.get(`${API_URL}/employees/${id}`);
-  return response.data;
+  const response = await axios.get<ApiResponse<Employee>>(`${API_URL}/employees/${id}`);
+  return response.data.data;
 };
 
 export const createEmployee = async (employee: EmployeeInput): Promise<Employee> => {
-  const response = await axios.post(`${API_URL}/employees`, employee);
-  return response.data;
+  const response = await axios.post<ApiResponse<Employee>>(`${API_URL}/employees`, employee);
+  return response.data.data;
 };
 
 export const updateEmployee = async ({
   id,
   ...employee
-}: EmployeeInput & { id: number }): Promise<Employee> => {
-  const response = await axios.put(`${API_URL}/employees/${id}`, employee);
-  return response.data;
+}: EmployeeUpdateInput & { id: number }): Promise<Employee> => {
+  const response = await axios.put<ApiResponse<Employee>>(`${API_URL}/employees/${id}`, employee);
+  return response.data.data;
 };
 
 export const deleteEmployee = async (id: number): Promise<void> => {
@@ -78,6 +94,11 @@ export const deleteEmployee = async (id: number): Promise<void> => {
 
 export const getStatistics = async (): Promise<Statistics> => {
   const response = await axios.get(`${API_URL}/statistics`);
+  return response.data;
+};
+
+export const getEmployeeStats = async (): Promise<EmployeeStats> => {
+  const response = await axios.get(`${API_URL}/employees/stats`);
   return response.data;
 };
 

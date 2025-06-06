@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllDepartments } from '../services/departmentService';
 
 const DepartmentList: React.FC = () => {
-  const { data: departments, isLoading, error } = useQuery({
+  const { data: departments = [], isLoading, error } = useQuery({
     queryKey: ['departments'],
     queryFn: getAllDepartments
   });
@@ -31,7 +31,7 @@ const DepartmentList: React.FC = () => {
                 Name
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Description
+                Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Employee Count
@@ -42,33 +42,52 @@ const DepartmentList: React.FC = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {departments?.map((department) => (
+            {departments.map((department) => (
               <tr key={department.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
                     {department.name}
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">
-                    {department.description}
-                  </div>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      department.status === 'active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}
+                  >
+                    {department.status.charAt(0).toUpperCase() + department.status.slice(1)}
+                  </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">
-                    {department.employeeCount || 0}
+                    {department.employee_count} {department.employee_count === 1 ? 'employee' : 'employees'}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                   <Link
                     to={`/departments/${department.id}`}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
+                    className="text-blue-600 hover:text-blue-900"
+                  >
+                    View
+                  </Link>
+                  <Link
+                    to={`/departments/${department.id}/edit`}
+                    className="text-blue-600 hover:text-blue-900"
                   >
                     Edit
                   </Link>
                 </td>
               </tr>
             ))}
+            {departments.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                  No departments found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

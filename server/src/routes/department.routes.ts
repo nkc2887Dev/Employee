@@ -8,12 +8,12 @@ import {
   updateDepartment,
   deleteDepartment
 } from '../controllers/department.controller';
-import { authenticate } from '../middlewares/auth.middleware';
+// import { authenticate } from '../middlewares/auth.middleware';
 
 const router = Router();
 
 // Protected routes
-router.use(authenticate);
+// router.use(authenticate);
 
 // Department routes
 router.post('/', validateRequest(departmentSchema), createDepartment);

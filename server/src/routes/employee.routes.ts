@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { validateRequest } from '../middlewares/validate.middleware';
-import { employeeSchema } from '../validations/schemas';
+import { employeeSchema, employeeUpdateSchema } from '../validations/schemas';
 import {
   createEmployee,
   getAllEmployees,
@@ -19,7 +19,7 @@ const router = Router();
 
 // Routes with file upload
 router.post('/', upload.single('photo'), validateRequest(employeeSchema), createEmployee);
-router.put('/:id', upload.single('photo'), validateRequest(employeeSchema), updateEmployee);
+router.put('/:id', upload.single('photo'), validateRequest(employeeUpdateSchema), updateEmployee);
 
 // Other routes
 router.get('/', getAllEmployees);

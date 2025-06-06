@@ -4,35 +4,36 @@ import { config } from 'dotenv';
 // Load environment variables
 config();
 
-const createIndexIfNotExists = async (connection: mysql.Connection, tableName: string, indexName: string, columnName: string) => {
+const createIndexIfNotExists = async (
+  connection: mysql.Connection,
+  table: string,
+  indexName: string,
+  column: string
+) => {
   try {
-    const [rows]: any = await connection.execute(
-      `SELECT COUNT(1) as indexExists
-       FROM INFORMATION_SCHEMA.STATISTICS
-       WHERE table_schema = DATABASE()
-       AND table_name = ?
-       AND index_name = ?`,
-      [tableName, indexName]
-    );
+    await connection.execute(`
+      SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS
+      WHERE table_schema=DATABASE() AND table_name=? AND index_name=?
+    `, [table, indexName]);
 
-    if (rows[0].indexExists === 0) {
-      await connection.execute(`CREATE INDEX ${indexName} ON ${tableName}(${columnName})`);
-      console.log(`Created index ${indexName} on ${tableName}`);
-    }
+    await connection.execute(`
+      CREATE INDEX ${indexName} ON ${table}(${column})
+    `);
   } catch (error) {
-    console.error(`Error creating index ${indexName}:`, error);
+    // Index might already exist, which is fine
+    console.log(`Note: Index ${indexName} might already exist`);
   }
 };
 
-export const createConnection = async () => {
-  try {
-    const connection = await mysql.createConnection({
-      host: process.env.DB_HOST || 'localhost',
-      user: process.env.DB_USER || 'root',
-      password: process.env.DB_PASSWORD || 'password',
-      database: process.env.DB_NAME || 'employee_management'
-    });
+export const initializeDatabase = async () => {
+  const connection = await mysql.createConnection({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || 'password',
+    database: process.env.DB_NAME || 'employee_management'
+  });
 
+  try {
     // Create tables
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS departments (
@@ -67,7 +68,34 @@ export const createConnection = async () => {
     await createIndexIfNotExists(connection, 'employees', 'idx_employee_email', 'email');
     await createIndexIfNotExists(connection, 'departments', 'idx_department_status', 'status');
 
-    console.log('Database connected successfully and tables/indexes created/verified');
+    // Insert default departments if they don't exist
+    await connection.execute(`
+      INSERT IGNORE INTO departments (name, status) VALUES
+        ('Human Resources', 'active'),
+        ('Engineering', 'active'),
+        ('Director', 'active'),
+        ('Management', 'active'),
+        ('Sales', 'active')
+    `);
+
+    console.info('Database initialized successfully with tables, indexes, and default data');
+  } catch (error) {
+    console.error('Database initialization failed:', error);
+    throw error;
+  } finally {
+    await connection.end();
+  }
+};
+
+export const createConnection = async () => {
+  try {
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST || 'localhost',
+      user: process.env.DB_USER || 'root',
+      password: process.env.DB_PASSWORD || 'password',
+      database: process.env.DB_NAME || 'employee_management'
+    });
+
     return connection;
   } catch (error) {
     console.error('Database connection failed:', error);

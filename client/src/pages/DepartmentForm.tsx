@@ -1,45 +1,88 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { getDepartmentById, createDepartment, updateDepartment } from '../services/departmentService';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getDepartmentById,
+  createDepartment,
+  updateDepartment,
+  type Department
+} from "../services/departmentService";
 
 const DepartmentForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const isEditing = Boolean(id);
+  const [error, setError] = useState<string>('');
+  const [formData, setFormData] = useState<Partial<Department>>({
+    name: '',
+    status: 'active'
+  });
 
   const { data: department, isLoading } = useQuery({
-    queryKey: ['department', id],
+    queryKey: ["department", id],
     queryFn: () => getDepartmentById(id!),
-    enabled: isEditing
+    enabled: isEditing,
   });
+
+  useEffect(() => {
+    if (department) {
+      setFormData({
+        name: department.name,
+        status: department.status
+      });
+    }
+  }, [department]);
 
   const createMutation = useMutation({
     mutationFn: createDepartment,
     onSuccess: () => {
-      navigate('/departments');
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
+      navigate("/departments");
+    },
+    onError: (error: any) => {
+      console.error('Error creating department:', error);
+      setError(error.response?.data?.message || 'Failed to create department. Please check your input.');
     }
   });
 
   const updateMutation = useMutation({
     mutationFn: updateDepartment,
     onSuccess: () => {
-      navigate('/departments');
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
+      queryClient.invalidateQueries({ queryKey: ['department', id] });
+      navigate("/departments");
+    },
+    onError: (error: any) => {
+      console.error('Error updating department:', error);
+      setError(error.response?.data?.message || 'Failed to update department. Please check your input.');
     }
   });
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const departmentData = {
-      name: formData.get('name') as string,
-      description: formData.get('description') as string
-    };
+    setError('');
 
-    if (isEditing) {
-      updateMutation.mutate({ id: Number(id), ...departmentData });
+    if (!formData.name || !formData.status) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
+    if (isEditing && id) {
+      updateMutation.mutate({
+        id: Number(id),
+        ...formData as Department
+      });
     } else {
-      createMutation.mutate(departmentData);
+      createMutation.mutate(formData as Department);
     }
   };
 
@@ -49,49 +92,70 @@ const DepartmentForm: React.FC = () => {
     <div className="max-w-2xl mx-auto bg-white shadow sm:rounded-lg">
       <div className="px-4 py-5 sm:p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          {isEditing ? 'Edit Department' : 'Add Department'}
+          {isEditing ? "Edit Department" : "Add Department"}
         </h2>
+        {error && (
+          <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
+            {error}
+          </div>
+        )}
+        {(createMutation.isError || updateMutation.isError) && (
+          <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
+            {createMutation.error?.message || updateMutation.error?.message || 'An error occurred'}
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
               Name
             </label>
             <input
               type="text"
               name="name"
               id="name"
-              defaultValue={department?.name}
+              value={formData.name}
+              onChange={handleInputChange}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Description
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Status
             </label>
-            <textarea
-              name="description"
-              id="description"
-              rows={3}
-              defaultValue={department?.description}
+            <select
+              name="status"
+              id="status"
+              value={formData.status}
+              onChange={handleInputChange}
+              required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
+            >
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
           </div>
-
           <div className="flex justify-end space-x-3">
             <button
               type="button"
-              onClick={() => navigate('/departments')}
+              onClick={() => navigate("/departments")}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              disabled={createMutation.isPending || updateMutation.isPending}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
             >
-              {isEditing ? 'Update' : 'Create'}
+              {isEditing ? "Update" : "Create"}
             </button>
           </div>
         </form>
@@ -100,4 +164,4 @@ const DepartmentForm: React.FC = () => {
   );
 };
 
-export default DepartmentForm; 
+export default DepartmentForm;
