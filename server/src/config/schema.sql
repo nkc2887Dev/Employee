@@ -28,11 +28,3 @@ CREATE INDEX idx_employee_department ON employees(department_id);
 CREATE INDEX idx_employee_status ON employees(status);
 CREATE INDEX idx_employee_email ON employees(email);
 CREATE INDEX idx_department_status ON departments(status);
-
--- Insert default departments if they don't exist
-INSERT IGNORE INTO departments (name, status) VALUES
-  ('Human Resources', 'active'),
-  ('Engineering', 'active'),
-  ('Director', 'active'),
-  ('Management', 'active'),
-  ('Sales', 'active'); 

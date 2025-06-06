@@ -1,6 +1,8 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getEmployeeStats } from "../services/employeeService";
+import LoadingSpinner from "../components/LoadingSpinner";
+import PageContainer from "../components/PageContainer";
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat("en-US", {
@@ -10,18 +12,27 @@ const formatCurrency = (amount: number) => {
 };
 
 const Statistics: React.FC = () => {
-  const {
-    data: stats,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: stats, isLoading, error } = useQuery({
     queryKey: ["employeeStats"],
     queryFn: getEmployeeStats,
   });
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading statistics</div>;
-
+  if (isLoading) return <LoadingSpinner />;
+  if (error) {
+    return (
+      <PageContainer>
+        <div className="p-8 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900">Error Loading Statistics</h3>
+          <p className="mt-2 text-sm text-gray-500">Please try again later or contact support if the problem persists.</p>
+        </div>
+      </PageContainer>
+    );
+  }
   return (
     <div className="space-y-8">
       {/* Department-wise Highest Salary */}

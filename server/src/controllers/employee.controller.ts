@@ -6,6 +6,7 @@ import { ResultSetHeader, RowDataPacket } from 'mysql2';
 interface Employee extends RowDataPacket {
   id: number;
   department_id: number;
+  department_name?: string;
   name: string;
   email: string;
   phone: string;
@@ -80,7 +81,11 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
 export const getAllEmployees = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const conn = await createConnection();
-    const [rows] = await conn.execute<Employee[]>('SELECT * FROM employees');
+    const [rows] = await conn.execute<Employee[]>(
+      `SELECT e.*, d.name as department_name 
+       FROM employees e
+       LEFT JOIN departments d ON e.department_id = d.id`
+    );
     await conn.end();
     res.json({ data: rows });
   } catch (error) {

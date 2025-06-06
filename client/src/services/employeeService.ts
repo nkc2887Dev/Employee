@@ -9,6 +9,7 @@ export interface Employee {
   phone: string;
   dob: string;
   department_id: number;
+  department_name?: string;
   salary: number;
   status: 'active' | 'inactive';
   photo?: string;

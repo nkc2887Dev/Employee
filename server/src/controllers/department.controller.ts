@@ -33,7 +33,7 @@ export const getAllDepartments = async (_req: Request, res: Response, next: Next
       FROM departments d
       LEFT JOIN employees e ON e.department_id = d.id
       GROUP BY d.id, d.name, d.status
-      ORDER BY d.name ASC
+      ORDER BY d.id ASC
     `);
 
     // Convert BigInt to Number for JSON serialization

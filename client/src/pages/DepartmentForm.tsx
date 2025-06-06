@@ -5,18 +5,19 @@ import {
   getDepartmentById,
   createDepartment,
   updateDepartment,
-  type Department
+  type Department,
 } from "../services/departmentService";
+import type { ApiError } from "../types/error";
 
 const DepartmentForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isEditing = Boolean(id);
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
   const [formData, setFormData] = useState<Partial<Department>>({
-    name: '',
-    status: 'active'
+    name: "",
+    status: "active",
   });
 
   const { data: department, isLoading } = useQuery({
@@ -29,7 +30,7 @@ const DepartmentForm: React.FC = () => {
     if (department) {
       setFormData({
         name: department.name,
-        status: department.status
+        status: department.status,
       });
     }
   }, [department]);
@@ -37,49 +38,60 @@ const DepartmentForm: React.FC = () => {
   const createMutation = useMutation({
     mutationFn: createDepartment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['departments'] });
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
       navigate("/departments");
     },
-    onError: (error: any) => {
-      console.error('Error creating department:', error);
-      setError(error.response?.data?.message || 'Failed to create department. Please check your input.');
-    }
+    onError: (error: ApiError) => {
+      console.error("Error creating department:", error);
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to create department. Please check your input."
+      );
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: updateDepartment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['departments'] });
-      queryClient.invalidateQueries({ queryKey: ['department', id] });
+      queryClient.invalidateQueries({ queryKey: ["departments"] });
+      queryClient.invalidateQueries({ queryKey: ["department", id] });
       navigate("/departments");
     },
-    onError: (error: any) => {
-      console.error('Error updating department:', error);
-      setError(error.response?.data?.message || 'Failed to update department. Please check your input.');
-    }
+    onError: (error: ApiError) => {
+      console.error("Error updating department:", error);
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to update department. Please check your input."
+      );
+    },
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!formData.name || !formData.status) {
-      setError('Please fill in all required fields');
+      setError("Please fill in all required fields");
       return;
     }
 
     if (isEditing && id) {
+      const { id, ...updateData } = formData as Department;
       updateMutation.mutate({
         id: Number(id),
-        ...formData as Department
+        ...updateData,
       });
     } else {
       createMutation.mutate(formData as Department);
@@ -101,7 +113,9 @@ const DepartmentForm: React.FC = () => {
         )}
         {(createMutation.isError || updateMutation.isError) && (
           <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
-            {createMutation.error?.message || updateMutation.error?.message || 'An error occurred'}
+            {createMutation.error?.message ||
+              updateMutation.error?.message ||
+              "An error occurred"}
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-6">

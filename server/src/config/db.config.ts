@@ -68,16 +68,6 @@ export const initializeDatabase = async () => {
     await createIndexIfNotExists(connection, 'employees', 'idx_employee_email', 'email');
     await createIndexIfNotExists(connection, 'departments', 'idx_department_status', 'status');
 
-    // Insert default departments if they don't exist
-    await connection.execute(`
-      INSERT IGNORE INTO departments (name, status) VALUES
-        ('Human Resources', 'active'),
-        ('Engineering', 'active'),
-        ('Director', 'active'),
-        ('Management', 'active'),
-        ('Sales', 'active')
-    `);
-
     console.info('Database initialized successfully with tables, indexes, and default data');
   } catch (error) {
     console.error('Database initialization failed:', error);

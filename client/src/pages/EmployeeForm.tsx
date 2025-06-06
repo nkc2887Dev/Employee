@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getEmployeeById, createEmployee, updateEmployee, type EmployeeInput, type EmployeeUpdateInput } from '../services/employeeService';
 import { getAllDepartments } from '../services/departmentService';
+import type { ApiError } from '../types/error';
 
 const EmployeeForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,9 +29,9 @@ const EmployeeForm: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['employees'] });
       navigate('/employees');
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error('Error creating employee:', error);
-      setError(error.response?.data?.message || 'Failed to create employee. Please check your input.');
+      setError(error.response?.data?.message || error.message || 'Failed to create employee. Please check your input.');
     }
   });
 
@@ -41,9 +42,9 @@ const EmployeeForm: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['employee', id] });
       navigate('/employees');
     },
-    onError: (error: any) => {
+    onError: (error: ApiError) => {
       console.error('Error updating employee:', error);
-      setError(error.response?.data?.message || 'Failed to update employee. Please check your input.');
+      setError(error.response?.data?.message || error.message || 'Failed to update employee. Please check your input.');
     }
   });
 
@@ -147,11 +148,6 @@ const EmployeeForm: React.FC = () => {
                 isEditing ? 'bg-gray-100 cursor-not-allowed' : ''
               }`}
             />
-            {isEditing && (
-              <p className="mt-1 text-sm text-gray-500">
-                Email cannot be changed after creation
-              </p>
-            )}
           </div>
 
           <div>
