@@ -1,8 +1,8 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { store } from './store';
-import MainLayout from './layouts/MainLayout';
+import Layout from './components/Layout';
 import EmployeeList from './pages/EmployeeList';
 import EmployeeForm from './pages/EmployeeForm';
 import EmployeeView from './pages/EmployeeView';
@@ -26,25 +26,33 @@ function App() {
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <Router>
-          <Routes>
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<EmployeeList />} />
-              <Route path="employees">
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Navigate to="/employees" replace />} />
+              
+              {/* Employee Routes */}
+              <Route path="/employees">
                 <Route index element={<EmployeeList />} />
                 <Route path="new" element={<EmployeeForm />} />
                 <Route path=":id" element={<EmployeeView />} />
                 <Route path=":id/edit" element={<EmployeeForm />} />
               </Route>
-              <Route path="departments">
+
+              {/* Department Routes */}
+              <Route path="/departments">
                 <Route index element={<DepartmentList />} />
                 <Route path="new" element={<DepartmentForm />} />
                 <Route path=":id" element={<DepartmentView />} />
                 <Route path=":id/edit" element={<DepartmentForm />} />
               </Route>
-              <Route path="statistics" element={<Statistics />} />
+
+              {/* Statistics Route */}
+              <Route path="/statistics" element={<Statistics />} />
+              
+              {/* 404 Route */}
               <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
+            </Routes>
+          </Layout>
         </Router>
       </QueryClientProvider>
     </Provider>
