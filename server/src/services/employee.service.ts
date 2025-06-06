@@ -7,7 +7,6 @@ export const employeeService = {
   // Get all employees with pagination and filters
   getEmployees: async (filters: EmployeeFilters) => {
     try {
-      console.log('filters: ', filters);
       const { status, department, search, page = 1, limit = 10 } = filters;
       const offset = (page - 1) * limit;
 
@@ -37,7 +36,6 @@ export const employeeService = {
       // Get total count
       const countQuery = `SELECT COUNT(*) as total ${baseQuery}`;
       const [countResult] = await pool.query<RowDataPacket[]>(countQuery, params);
-      console.log('countResult: ', countResult);
       const total = countResult[0].total;
 
       // Get paginated results
@@ -53,7 +51,6 @@ export const employeeService = {
       // Clone params array and add pagination parameters
       const dataParams = [...params, limit, offset];
       const [rows] = await pool.query<RowDataPacket[]>(dataQuery, dataParams);
-      console.log('rows: ', rows);
       return {
         data: rows,
         total,

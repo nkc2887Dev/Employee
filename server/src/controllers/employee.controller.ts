@@ -90,7 +90,6 @@ export const getAllEmployees = async (req: Request, res: Response, next: NextFun
     };
 
     const result = await employeeService.getEmployees(filters);
-    console.log('result: ', result);
     res.json({
       data: result.data,
       pagination: {

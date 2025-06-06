@@ -21,7 +21,7 @@ const createIndexIfNotExists = async (
     `);
   } catch (error) {
     // Index might already exist, which is fine
-    console.log(`Note: Index ${indexName} might already exist`);
+    console.info(`Note: Index ${indexName} might already exist`);
   }
 };
 
