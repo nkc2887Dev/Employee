@@ -1,15 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getAllDepartments } from '../services/departmentService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import PageContainer from '../components/PageContainer';
+import Pagination from '../components/Pagination';
 
 const DepartmentList: React.FC = () => {
-  const { data: departments = [], isLoading, error } = useQuery({
-    queryKey: ['departments'],
-    queryFn: getAllDepartments
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [filters, setFilters] = useState({
+    status: '',
+    search: ''
   });
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['departments', page, limit, filters],
+    queryFn: () => getAllDepartments({ page, limit, ...filters })
+  });
+
+  const departments = data?.data || [];
+  const pagination = data?.pagination;
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
+    setPage(1); // Reset to first page when filters change
+  };
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -43,6 +64,33 @@ const DepartmentList: React.FC = () => {
 
   return (
     <PageContainer title="Departments" action={AddDepartmentButton}>
+      <div className="mb-4 flex justify-between items-center">
+        <div className="flex gap-4">
+          <div>
+            <select
+              name="status"
+              value={filters.status}
+              onChange={handleFilterChange}
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+            >
+              <option value="">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+          <div>
+            <input
+              type="text"
+              name="search"
+              value={filters.search}
+              onChange={handleFilterChange}
+              placeholder="Search departments..."
+              className="mt-1 block w-full border-gray-300 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+            />
+          </div>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -136,6 +184,16 @@ const DepartmentList: React.FC = () => {
           </div>
         )}
       </div>
+
+      {pagination && departments.length > 0 && (
+        <div className="mt-4">
+          <Pagination
+            currentPage={page}
+            totalPages={pagination.totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      )}
     </PageContainer>
   );
 };

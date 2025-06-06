@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../middlewares/error.middleware';
 import { createConnection } from '../config/db.config';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
+import { employeeService } from '../services/employee.service';
 
 interface Employee extends RowDataPacket {
   id: number;
@@ -78,17 +79,29 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
   }
 };
 
-export const getAllEmployees = async (_req: Request, res: Response, next: NextFunction) => {
+export const getAllEmployees = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const conn = await createConnection();
-    const [rows] = await conn.execute<Employee[]>(
-      `SELECT e.*, d.name as department_name 
-       FROM employees e
-       LEFT JOIN departments d ON e.department_id = d.id`
-    );
-    await conn.end();
-    res.json({ data: rows });
+    const filters = {
+      page: parseInt(req.query.page as string) || 1,
+      limit: parseInt(req.query.limit as string) || 10,
+      status: req.query.status as string,
+      department: parseInt(req.query.department as string),
+      search: req.query.search as string
+    };
+
+    const result = await employeeService.getEmployees(filters);
+    console.log('result: ', result);
+    res.json({
+      data: result.data,
+      pagination: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: Math.ceil(result.total / result.limit)
+      }
+    });
   } catch (error) {
+    console.error('Error fetching employees:', error);
     next(new AppError('Failed to fetch employees', 500));
   }
 };

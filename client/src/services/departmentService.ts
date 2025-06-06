@@ -9,6 +9,23 @@ export interface Department {
   employee_count: number;
 }
 
+export interface DepartmentFilters {
+  page?: number;
+  limit?: number;
+  status?: string;
+  search?: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+}
+
 export type DepartmentInput = Omit<Department, 'id' | 'employee_count'>;
 
 export interface ApiResponse<T> {
@@ -16,8 +33,14 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-export const getAllDepartments = async (): Promise<Department[]> => {
-  const response = await axios.get(`${API_URL}/departments`);
+export const getAllDepartments = async (filters: DepartmentFilters = {}): Promise<PaginatedResponse<Department>> => {
+  const params = new URLSearchParams();
+  if (filters.page) params.append('page', filters.page.toString());
+  if (filters.limit) params.append('limit', filters.limit.toString());
+  if (filters.status) params.append('status', filters.status);
+  if (filters.search) params.append('search', filters.search);
+
+  const response = await axios.get(`${API_URL}/departments?${params.toString()}`);
   return response.data;
 };
 

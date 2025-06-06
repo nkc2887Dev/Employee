@@ -46,29 +46,42 @@ export interface EmployeeStats {
   }>;
 }
 
-export type EmployeeInput = Omit<Employee, 'id' | 'created_at' | 'modified_at'>;
-export type EmployeeUpdateInput = Partial<EmployeeInput>;
+export interface EmployeeInput {
+  name: string;
+  email: string;
+  phone: string;
+  dob: string;
+  department_id: number;
+  salary: number;
+  status: 'active' | 'inactive';
+  photo?: string;
+}
+
+export interface EmployeeUpdateInput extends Partial<Omit<EmployeeInput, 'email'>> {}
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginationResponse {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 export interface ApiResponse<T> {
   data: T;
   message?: string;
+  pagination?: PaginationResponse;
 }
 
-export interface Statistics {
-  totalEmployees: number;
-  totalDepartments: number;
-  averageSalary: number;
-  departmentStats: Array<{
-    id: number;
-    name: string;
-    employeeCount: number;
-    averageSalary: number;
-  }>;
-}
-
-export const getAllEmployees = async (): Promise<Employee[]> => {
-  const response = await axios.get<ApiResponse<Employee[]>>(`${API_URL}/employees`);
-  return response.data.data;
+export const getAllEmployees = async (params?: PaginationParams): Promise<ApiResponse<Employee[]>> => {
+  const response = await axios.get<ApiResponse<Employee[]>>(`${API_URL}/employees`, {
+    params
+  });
+  return response.data;
 };
 
 export const getEmployeeById = async (id: string): Promise<Employee> => {
