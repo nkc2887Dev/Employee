@@ -9,7 +9,9 @@ import EmployeeView from './pages/EmployeeView';
 import DepartmentList from './pages/DepartmentList';
 import DepartmentForm from './pages/DepartmentForm';
 import DepartmentView from './pages/DepartmentView';
-import Statistics from './pages/Statistics';
+import DepartmentSalaryPage from './pages/statistics/DepartmentSalaryPage';
+import SalaryRangePage from './pages/statistics/SalaryRangePage';
+import YoungestEmployeePage from './pages/statistics/YoungestEmployeePage';
 import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient({
@@ -29,7 +31,7 @@ function App() {
           <Layout>
             <Routes>
               <Route path="/" element={<Navigate to="/employees" replace />} />
-              
+
               {/* Employee Routes */}
               <Route path="/employees">
                 <Route index element={<EmployeeList />} />
@@ -46,9 +48,14 @@ function App() {
                 <Route path=":id/edit" element={<DepartmentForm />} />
               </Route>
 
-              {/* Statistics Route */}
-              <Route path="/statistics" element={<Statistics />} />
-              
+              {/* Statistics Routes */}
+              <Route path="/statistics">
+                <Route path="department-salaries" element={<DepartmentSalaryPage />} />
+                <Route path="salary-ranges" element={<SalaryRangePage />} />
+                <Route path="youngest-employees" element={<YoungestEmployeePage />} />
+                <Route index element={<Navigate to="/statistics/department-salaries" replace />} />
+              </Route>
+
               {/* 404 Route */}
               <Route path="*" element={<NotFound />} />
             </Routes>

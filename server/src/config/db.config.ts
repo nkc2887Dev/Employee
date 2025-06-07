@@ -8,13 +8,16 @@ const createIndexIfNotExists = async (
   connection: mysql.Connection,
   table: string,
   indexName: string,
-  column: string
+  column: string,
 ) => {
   try {
-    await connection.execute(`
+    await connection.execute(
+      `
       SELECT COUNT(1) IndexExists FROM INFORMATION_SCHEMA.STATISTICS
       WHERE table_schema=DATABASE() AND table_name=? AND index_name=?
-    `, [table, indexName]);
+    `,
+      [table, indexName],
+    );
 
     await connection.execute(`
       CREATE INDEX ${indexName} ON ${table}(${column})
@@ -30,7 +33,7 @@ export const initializeDatabase = async () => {
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASSWORD || 'password',
-    database: process.env.DB_NAME || 'employee_management'
+    database: process.env.DB_NAME || 'employee_management',
   });
 
   try {
@@ -63,7 +66,12 @@ export const initializeDatabase = async () => {
     `);
 
     // Create indexes if they don't exist
-    await createIndexIfNotExists(connection, 'employees', 'idx_employee_department', 'department_id');
+    await createIndexIfNotExists(
+      connection,
+      'employees',
+      'idx_employee_department',
+      'department_id',
+    );
     await createIndexIfNotExists(connection, 'employees', 'idx_employee_status', 'status');
     await createIndexIfNotExists(connection, 'employees', 'idx_employee_email', 'email');
     await createIndexIfNotExists(connection, 'departments', 'idx_department_status', 'status');
@@ -83,7 +91,7 @@ export const createConnection = async () => {
       host: process.env.DB_HOST || 'localhost',
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || 'password',
-      database: process.env.DB_NAME || 'employee_management'
+      database: process.env.DB_NAME || 'employee_management',
     });
 
     return connection;
@@ -91,4 +99,4 @@ export const createConnection = async () => {
     console.error('Database connection failed:', error);
     throw error;
   }
-}; 
+};

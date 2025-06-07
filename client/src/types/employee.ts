@@ -11,4 +11,4 @@ export interface Employee {
   status: 'active' | 'inactive';
   created_at: string;
   modified_at: string;
-} 
+}

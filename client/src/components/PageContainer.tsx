@@ -15,11 +15,9 @@ const PageContainer: React.FC<PageContainerProps> = ({ children, title, action }
           {action && <div>{action}</div>}
         </div>
       )}
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        {children}
-      </div>
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">{children}</div>
     </div>
   );
 };
 
-export default PageContainer; 
+export default PageContainer;

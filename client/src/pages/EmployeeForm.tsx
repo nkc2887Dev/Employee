@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getEmployeeById, createEmployee, updateEmployee, type EmployeeInput, type EmployeeUpdateInput } from '../services/employeeService';
-import { getAllDepartments } from '../services/departmentService';
+import {
+  getEmployeeById,
+  createEmployee,
+  updateEmployee,
+  type EmployeeInput,
+  type EmployeeUpdateInput,
+} from '../services/employeeService';
+import {
+  getAllDepartments,
+  type Department,
+  type PaginatedResponse,
+} from '../services/departmentService';
 import type { ApiError } from '../types/error';
 
 const EmployeeForm: React.FC = () => {
@@ -15,13 +25,17 @@ const EmployeeForm: React.FC = () => {
   const { data: employee, isLoading: isLoadingEmployee } = useQuery({
     queryKey: ['employee', id],
     queryFn: () => getEmployeeById(id!),
-    enabled: isEditing
+    enabled: isEditing,
   });
 
-  const { data: departments = [], isLoading: isLoadingDepartments } = useQuery({
+  const { data: departmentsResponse, isLoading: isLoadingDepartments } = useQuery<
+    PaginatedResponse<Department>
+  >({
     queryKey: ['departments'],
-    queryFn: getAllDepartments
+    queryFn: () => getAllDepartments({ page: 1, limit: 100 }), // Get all departments for the dropdown
   });
+
+  const departments = departmentsResponse?.data || [];
 
   const createMutation = useMutation({
     mutationFn: createEmployee,
@@ -31,8 +45,12 @@ const EmployeeForm: React.FC = () => {
     },
     onError: (error: ApiError) => {
       console.error('Error creating employee:', error);
-      setError(error.response?.data?.message || error.message || 'Failed to create employee. Please check your input.');
-    }
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          'Failed to create employee. Please check your input.',
+      );
+    },
   });
 
   const updateMutation = useMutation({
@@ -44,15 +62,19 @@ const EmployeeForm: React.FC = () => {
     },
     onError: (error: ApiError) => {
       console.error('Error updating employee:', error);
-      setError(error.response?.data?.message || error.message || 'Failed to update employee. Please check your input.');
-    }
+      setError(
+        error.response?.data?.message ||
+          error.message ||
+          'Failed to update employee. Please check your input.',
+      );
+    },
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     const formData = new FormData(e.currentTarget);
-    
+
     if (isEditing && id) {
       const updateData: EmployeeUpdateInput = {
         name: formData.get('name') as string,
@@ -62,7 +84,7 @@ const EmployeeForm: React.FC = () => {
         salary: Number(formData.get('salary')),
         status: formData.get('status') as 'active' | 'inactive',
       };
-      
+
       // Only include photo if it's provided
       const photo = formData.get('photo') as string;
       if (photo) {
@@ -70,7 +92,14 @@ const EmployeeForm: React.FC = () => {
       }
 
       // Validate required fields
-      if (!updateData.name || !updateData.phone || !updateData.dob || !updateData.department_id || !updateData.salary || !updateData.status) {
+      if (
+        !updateData.name ||
+        !updateData.phone ||
+        !updateData.dob ||
+        !updateData.department_id ||
+        !updateData.salary ||
+        !updateData.status
+      ) {
         setError('Please fill in all required fields');
         return;
       }
@@ -85,12 +114,19 @@ const EmployeeForm: React.FC = () => {
         department_id: Number(formData.get('department_id')),
         salary: Number(formData.get('salary')),
         status: formData.get('status') as 'active' | 'inactive',
-        photo: formData.get('photo') as string || undefined
+        photo: (formData.get('photo') as string) || undefined,
       };
 
       // Validate required fields
-      if (!createData.name || !createData.email || !createData.phone || !createData.dob || 
-          !createData.department_id || !createData.salary || !createData.status) {
+      if (
+        !createData.name ||
+        !createData.email ||
+        !createData.phone ||
+        !createData.dob ||
+        !createData.department_id ||
+        !createData.salary ||
+        !createData.status
+      ) {
         setError('Please fill in all required fields');
         return;
       }
@@ -107,11 +143,7 @@ const EmployeeForm: React.FC = () => {
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           {isEditing ? 'Edit Employee' : 'Add Employee'}
         </h2>
-        {error && (
-          <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">{error}</div>}
         {(createMutation.isError || updateMutation.isError) && (
           <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
             {createMutation.error?.message || updateMutation.error?.message || 'An error occurred'}
@@ -266,4 +298,4 @@ const EmployeeForm: React.FC = () => {
   );
 };
 
-export default EmployeeForm; 
+export default EmployeeForm;

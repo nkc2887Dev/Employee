@@ -62,6 +62,9 @@ export interface EmployeeUpdateInput extends Partial<Omit<EmployeeInput, 'email'
 export interface PaginationParams {
   page?: number;
   limit?: number;
+  status?: string;
+  department?: number;
+  search?: string;
 }
 
 export interface PaginationResponse {
@@ -77,9 +80,11 @@ export interface ApiResponse<T> {
   pagination?: PaginationResponse;
 }
 
-export const getAllEmployees = async (params?: PaginationParams): Promise<ApiResponse<Employee[]>> => {
+export const getAllEmployees = async (
+  params?: PaginationParams,
+): Promise<ApiResponse<Employee[]>> => {
   const response = await axios.get<ApiResponse<Employee[]>>(`${API_URL}/employees`, {
-    params
+    params,
   });
   return response.data;
 };
@@ -106,11 +111,6 @@ export const deleteEmployee = async (id: number): Promise<void> => {
   await axios.delete(`${API_URL}/employees/${id}`);
 };
 
-export const getStatistics = async (): Promise<Statistics> => {
-  const response = await axios.get(`${API_URL}/statistics`);
-  return response.data;
-};
-
 export const getEmployeeStats = async (): Promise<EmployeeStats> => {
   const response = await axios.get(`${API_URL}/employees/stats`);
   return response.data;
@@ -133,4 +133,4 @@ const employeeService = {
   },
 };
 
-export default employeeService; 
+export default employeeService;

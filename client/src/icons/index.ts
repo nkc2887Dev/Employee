@@ -1,0 +1,14 @@
+export { default as AddIcon } from './AddIcon';
+export { default as ViewIcon } from './ViewIcon';
+export { default as EditIcon } from './EditIcon';
+export { default as ErrorIcon } from './ErrorIcon';
+export { default as EmptyIcon } from './EmptyIcon';
+export { PreviousIcon, NextIcon } from './PaginationIcons';
+export { default as MenuIcon } from './MenuIcon';
+export { default as CloseIcon } from './CloseIcon';
+export { default as EmployeeIcon } from './EmployeeIcon';
+export { default as DepartmentIcon } from './DepartmentIcon';
+export { default as MoneyIcon } from './MoneyIcon';
+export { default as BarChartIcon } from './BarChartIcon';
+export { default as AwardIcon } from './AwardIcon';
+export { default as DeleteIcon } from './DeleteIcon';

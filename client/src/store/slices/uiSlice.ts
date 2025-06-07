@@ -7,11 +7,6 @@ interface UIState {
     message: string;
     type: 'success' | 'error' | 'info';
   };
-  modal: {
-    show: boolean;
-    type: string;
-    data: any;
-  };
 }
 
 const initialState: UIState = {
@@ -20,11 +15,6 @@ const initialState: UIState = {
     show: false,
     message: '',
     type: 'info',
-  },
-  modal: {
-    show: false,
-    type: '',
-    data: null,
   },
 };
 
@@ -44,18 +34,8 @@ const uiSlice = createSlice({
     hideToast: (state) => {
       state.toast = initialState.toast;
     },
-    showModal: (state, action: PayloadAction<Omit<typeof initialState.modal, 'show'>>) => {
-      state.modal = {
-        ...action.payload,
-        show: true,
-      };
-    },
-    hideModal: (state) => {
-      state.modal = initialState.modal;
-    },
   },
 });
 
-export const { setLoading, showToast, hideToast, showModal, hideModal } = uiSlice.actions;
-
-export default uiSlice.reducer; 
+export const { setLoading, showToast, hideToast } = uiSlice.actions;
+export default uiSlice.reducer;

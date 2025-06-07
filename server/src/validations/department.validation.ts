@@ -3,20 +3,14 @@ import Joi from 'joi';
 import { AppError } from '../middlewares/error.middleware';
 
 const departmentSchema = Joi.object({
-  name: Joi.string()
-    .required()
-    .min(2)
-    .messages({
-      'any.required': 'Name is required',
-      'string.min': 'Name must be at least 2 characters',
-    }),
-  status: Joi.string()
-    .required()
-    .valid('active', 'inactive')
-    .messages({
-      'any.required': 'Status is required',
-      'any.only': 'Status must be either active or inactive',
-    }),
+  name: Joi.string().required().min(2).messages({
+    'any.required': 'Name is required',
+    'string.min': 'Name must be at least 2 characters',
+  }),
+  status: Joi.string().required().valid('active', 'inactive').messages({
+    'any.required': 'Status is required',
+    'any.only': 'Status must be either active or inactive',
+  }),
 });
 
 export const validateDepartment = (req: Request, _res: Response, next: NextFunction) => {
@@ -34,4 +28,4 @@ export const validateDepartment = (req: Request, _res: Response, next: NextFunct
       next(new AppError('Validation error', 400));
     }
   }
-}; 
+};

@@ -11,4 +11,4 @@ const LoadingSpinner: React.FC = () => {
   );
 };
 
-export default LoadingSpinner; 
+export default LoadingSpinner;

@@ -4,14 +4,14 @@ import app from './app';
 const startServer = async () => {
   try {
     const PORT = process.env.PORT || 5000;
-    
+
     // Initialize database with tables, indexes, and default data
     await initializeDatabase();
-    
+
     // Test connection
     const connection = await createConnection();
     await connection.end();
-    
+
     app.listen(PORT, () => {
       console.info(`Server is running on port ${PORT}`);
     });
@@ -21,4 +21,4 @@ const startServer = async () => {
   }
 };
 
-startServer(); 
+startServer();

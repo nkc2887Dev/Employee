@@ -81,7 +81,7 @@ const EmployeeView: React.FC = () => {
                 {new Date(employee.dob).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
-                  day: 'numeric'
+                  day: 'numeric',
                 })}
               </dd>
             </div>
@@ -91,7 +91,7 @@ const EmployeeView: React.FC = () => {
               <dd className="mt-1 text-sm text-gray-900">
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
-                  currency: 'USD'
+                  currency: 'USD',
                 }).format(employee.salary)}
               </dd>
             </div>
@@ -130,4 +130,4 @@ const EmployeeView: React.FC = () => {
   );
 };
 
-export default EmployeeView; 
+export default EmployeeView;

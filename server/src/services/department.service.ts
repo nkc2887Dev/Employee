@@ -46,7 +46,7 @@ export const departmentService = {
         ORDER BY d.id DESC
         LIMIT ? OFFSET ?
       `;
-      
+
       // Clone params array and add pagination parameters
       const dataParams = [...params, limit, offset];
       const [rows] = await pool.query<RowDataPacket[]>(dataQuery, dataParams);
@@ -56,7 +56,7 @@ export const departmentService = {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       };
     } catch (error) {
       console.error('Error in getDepartments service:', error);
@@ -66,31 +66,29 @@ export const departmentService = {
 
   // Get single department by ID
   getDepartmentById: async (id: number): Promise<Department | null> => {
-    const [rows] = await pool.query<RowDataPacket[]>(
-      'SELECT * FROM departments WHERE id = ?',
-      [id]
-    );
-    return rows[0] as Department || null;
+    const [rows] = await pool.query<RowDataPacket[]>('SELECT * FROM departments WHERE id = ?', [
+      id,
+    ]);
+    return (rows[0] as Department) || null;
   },
 
   // Create new department
-  createDepartment: async (data: Omit<Department, 'id' | 'created_at' | 'modified_at'>): Promise<Department> => {
-    const [result] = await pool.query<ResultSetHeader>(
-      'INSERT INTO departments SET ?',
-      data
-    );
+  createDepartment: async (
+    data: Omit<Department, 'id' | 'created_at' | 'modified_at'>,
+  ): Promise<Department> => {
+    const [result] = await pool.query<ResultSetHeader>('INSERT INTO departments SET ?', data);
     return departmentService.getDepartmentById(result.insertId) as Promise<Department>;
   },
 
   // Update department
   updateDepartment: async (
     id: number,
-    data: Partial<Omit<Department, 'id' | 'created_at' | 'modified_at'>>
+    data: Partial<Omit<Department, 'id' | 'created_at' | 'modified_at'>>,
   ): Promise<Department | null> => {
-    const [result] = await pool.query<ResultSetHeader>(
-      'UPDATE departments SET ? WHERE id = ?',
-      [data, id]
-    );
+    const [result] = await pool.query<ResultSetHeader>('UPDATE departments SET ? WHERE id = ?', [
+      data,
+      id,
+    ]);
     if (result.affectedRows === 0) {
       return null;
     }
@@ -106,7 +104,7 @@ export const departmentService = {
       // Check if department has employees
       const [employees] = await connection.query<RowDataPacket[]>(
         'SELECT COUNT(*) as count FROM employees WHERE department_id = ?',
-        [id]
+        [id],
       );
 
       if (employees[0].count > 0) {
@@ -116,7 +114,7 @@ export const departmentService = {
       // Delete department
       const [result] = await connection.query<ResultSetHeader>(
         'DELETE FROM departments WHERE id = ?',
-        [id]
+        [id],
       );
 
       if (result.affectedRows === 0) {
@@ -131,4 +129,4 @@ export const departmentService = {
       connection.release();
     }
   },
-}; 
+};

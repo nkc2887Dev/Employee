@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getDepartmentById,
   createDepartment,
   updateDepartment,
   type Department,
-} from "../services/departmentService";
-import type { ApiError } from "../types/error";
+} from '../services/departmentService';
+import type { ApiError } from '../types/error';
 
 const DepartmentForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isEditing = Boolean(id);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>('');
   const [formData, setFormData] = useState<Partial<Department>>({
-    name: "",
-    status: "active",
+    name: '',
+    status: 'active',
   });
 
   const { data: department, isLoading } = useQuery({
-    queryKey: ["department", id],
+    queryKey: ['department', id],
     queryFn: () => getDepartmentById(id!),
     enabled: isEditing,
   });
@@ -38,15 +38,15 @@ const DepartmentForm: React.FC = () => {
   const createMutation = useMutation({
     mutationFn: createDepartment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["departments"] });
-      navigate("/departments");
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
+      navigate('/departments');
     },
     onError: (error: ApiError) => {
-      console.error("Error creating department:", error);
+      console.error('Error creating department:', error);
       setError(
         error.response?.data?.message ||
           error.message ||
-          "Failed to create department. Please check your input."
+          'Failed to create department. Please check your input.',
       );
     },
   });
@@ -54,23 +54,21 @@ const DepartmentForm: React.FC = () => {
   const updateMutation = useMutation({
     mutationFn: updateDepartment,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["departments"] });
-      queryClient.invalidateQueries({ queryKey: ["department", id] });
-      navigate("/departments");
+      queryClient.invalidateQueries({ queryKey: ['departments'] });
+      queryClient.invalidateQueries({ queryKey: ['department', id] });
+      navigate('/departments');
     },
     onError: (error: ApiError) => {
-      console.error("Error updating department:", error);
+      console.error('Error updating department:', error);
       setError(
         error.response?.data?.message ||
           error.message ||
-          "Failed to update department. Please check your input."
+          'Failed to update department. Please check your input.',
       );
     },
   });
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -80,10 +78,10 @@ const DepartmentForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     if (!formData.name || !formData.status) {
-      setError("Please fill in all required fields");
+      setError('Please fill in all required fields');
       return;
     }
 
@@ -104,26 +102,17 @@ const DepartmentForm: React.FC = () => {
     <div className="max-w-2xl mx-auto bg-white shadow sm:rounded-lg">
       <div className="px-4 py-5 sm:p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          {isEditing ? "Edit Department" : "Add Department"}
+          {isEditing ? 'Edit Department' : 'Add Department'}
         </h2>
-        {error && (
-          <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
-            {error}
-          </div>
-        )}
+        {error && <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">{error}</div>}
         {(createMutation.isError || updateMutation.isError) && (
           <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-md">
-            {createMutation.error?.message ||
-              updateMutation.error?.message ||
-              "An error occurred"}
+            {createMutation.error?.message || updateMutation.error?.message || 'An error occurred'}
           </div>
         )}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
               Name
             </label>
             <input
@@ -138,10 +127,7 @@ const DepartmentForm: React.FC = () => {
           </div>
 
           <div>
-            <label
-              htmlFor="status"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="status" className="block text-sm font-medium text-gray-700">
               Status
             </label>
             <select
@@ -159,7 +145,7 @@ const DepartmentForm: React.FC = () => {
           <div className="flex justify-end space-x-3">
             <button
               type="button"
-              onClick={() => navigate("/departments")}
+              onClick={() => navigate('/departments')}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
               Cancel
@@ -169,7 +155,7 @@ const DepartmentForm: React.FC = () => {
               disabled={createMutation.isPending || updateMutation.isPending}
               className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
             >
-              {isEditing ? "Update" : "Create"}
+              {isEditing ? 'Update' : 'Create'}
             </button>
           </div>
         </form>

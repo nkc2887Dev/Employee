@@ -61,6 +61,7 @@ const employeeSlice = createSlice({
   },
 });
 
-export const { setSelectedEmployee, setFilters, setPagination, resetFilters } = employeeSlice.actions;
+export const { setSelectedEmployee, setFilters, setPagination, resetFilters } =
+  employeeSlice.actions;
 
-export default employeeSlice.reducer; 
+export default employeeSlice.reducer;

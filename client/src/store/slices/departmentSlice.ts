@@ -53,6 +53,7 @@ const departmentSlice = createSlice({
   },
 });
 
-export const { setSelectedDepartment, setFilters, setPagination, resetFilters } = departmentSlice.actions;
+export const { setSelectedDepartment, setFilters, setPagination, resetFilters } =
+  departmentSlice.actions;
 
-export default departmentSlice.reducer; 
+export default departmentSlice.reducer;

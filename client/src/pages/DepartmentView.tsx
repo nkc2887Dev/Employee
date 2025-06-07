@@ -7,7 +7,11 @@ const DepartmentView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const { data: department, isLoading, error } = useQuery({
+  const {
+    data: department,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['department', id],
     queryFn: () => getDepartmentById(id!),
     enabled: Boolean(id),
@@ -108,4 +112,4 @@ const DepartmentView: React.FC = () => {
   );
 };
 
-export default DepartmentView; 
+export default DepartmentView;

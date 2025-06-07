@@ -27,4 +27,4 @@ app.use('/api/departments', departmentRoutes);
 // Error handling middleware
 app.use(errorHandler);
 
-export default app; 
+export default app;

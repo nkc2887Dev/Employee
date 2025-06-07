@@ -35,4 +35,4 @@ export interface EmployeeStats {
     name: string;
     age: number;
   }[];
-} 
+}

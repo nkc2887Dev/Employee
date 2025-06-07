@@ -1,1 +1,20 @@
-{"root":["./src/App.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/layouts/MainLayout.tsx","./src/pages/DepartmentForm.tsx","./src/pages/DepartmentList.tsx","./src/pages/EmployeeForm.tsx","./src/pages/EmployeeList.tsx","./src/pages/NotFound.tsx","./src/pages/Statistics.tsx","./src/services/departmentService.ts","./src/services/employeeService.ts","./src/store/index.ts","./src/store/slices/departmentSlice.ts","./src/store/slices/employeeSlice.ts","./src/store/slices/uiSlice.ts"],"version":"5.8.3"}
+{
+  "root": [
+    "./src/App.tsx",
+    "./src/main.tsx",
+    "./src/vite-env.d.ts",
+    "./src/pages/DepartmentForm.tsx",
+    "./src/pages/DepartmentList.tsx",
+    "./src/pages/EmployeeForm.tsx",
+    "./src/pages/EmployeeList.tsx",
+    "./src/pages/NotFound.tsx",
+    "./src/pages/Statistics.tsx",
+    "./src/services/departmentService.ts",
+    "./src/services/employeeService.ts",
+    "./src/store/index.ts",
+    "./src/store/slices/departmentSlice.ts",
+    "./src/store/slices/employeeSlice.ts",
+    "./src/store/slices/uiSlice.ts"
+  ],
+  "version": "5.8.3"
+}

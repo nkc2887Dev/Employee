@@ -33,7 +33,9 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-export const getAllDepartments = async (filters: DepartmentFilters = {}): Promise<PaginatedResponse<Department>> => {
+export const getAllDepartments = async (
+  filters: DepartmentFilters = {},
+): Promise<PaginatedResponse<Department>> => {
   const params = new URLSearchParams();
   if (filters.page) params.append('page', filters.page.toString());
   if (filters.limit) params.append('limit', filters.limit.toString());
@@ -54,14 +56,14 @@ export const createDepartment = async (department: DepartmentInput): Promise<Dep
   return response.data.data;
 };
 
-export const updateDepartment = async ({
-  id,
-  ...department
-}: Department): Promise<Department> => {
-  const response = await axios.put<ApiResponse<Department>>(`${API_URL}/departments/${id}`, department);
+export const updateDepartment = async ({ id, ...department }: Department): Promise<Department> => {
+  const response = await axios.put<ApiResponse<Department>>(
+    `${API_URL}/departments/${id}`,
+    department,
+  );
   return response.data.data;
 };
 
 export const deleteDepartment = async (id: number): Promise<void> => {
   await axios.delete(`${API_URL}/departments/${id}`);
-}; 
+};

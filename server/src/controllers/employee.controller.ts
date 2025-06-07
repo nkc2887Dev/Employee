@@ -20,11 +20,11 @@ interface Employee extends RowDataPacket {
 export const createEmployee = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const conn = await createConnection();
-    
+
     // Check if email already exists
     const [existingEmployees] = await conn.execute<Employee[]>(
       'SELECT id FROM employees WHERE email = ?',
-      [req.body.email]
+      [req.body.email],
     );
 
     if (existingEmployees.length > 0) {
@@ -35,7 +35,7 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
     // Check if department exists
     const [departments] = await conn.execute<Employee[]>(
       'SELECT id FROM departments WHERE id = ?',
-      [req.body.department_id]
+      [req.body.department_id],
     );
 
     if (departments.length === 0) {
@@ -50,24 +50,23 @@ export const createEmployee = async (req: Request, res: Response, next: NextFunc
     const [result] = await conn.execute<ResultSetHeader>(
       `INSERT INTO employees (name, email, phone, dob, department_id, salary, status, photo) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, email, phone, dob, department_id, salary, status, photo || null]
+      [name, email, phone, dob, department_id, salary, status, photo || null],
     );
-    
+
     // Get the created employee
-    const [employees] = await conn.execute<Employee[]>(
-      'SELECT * FROM employees WHERE id = ?',
-      [result.insertId]
-    );
-    
+    const [employees] = await conn.execute<Employee[]>('SELECT * FROM employees WHERE id = ?', [
+      result.insertId,
+    ]);
+
     await conn.end();
-    
+
     if (employees.length === 0) {
       return next(new AppError('Failed to create employee', 500));
     }
 
-    res.status(201).json({ 
-      message: 'Employee created successfully', 
-      data: employees[0]
+    res.status(201).json({
+      message: 'Employee created successfully',
+      data: employees[0],
     });
   } catch (error: any) {
     console.error('Error creating employee:', error);
@@ -86,7 +85,7 @@ export const getAllEmployees = async (req: Request, res: Response, next: NextFun
       limit: parseInt(req.query.limit as string) || 10,
       status: req.query.status as string,
       department: parseInt(req.query.department as string),
-      search: req.query.search as string
+      search: req.query.search as string,
     };
 
     const result = await employeeService.getEmployees(filters);
@@ -96,8 +95,8 @@ export const getAllEmployees = async (req: Request, res: Response, next: NextFun
         total: result.total,
         page: result.page,
         limit: result.limit,
-        totalPages: Math.ceil(result.total / result.limit)
-      }
+        totalPages: Math.ceil(result.total / result.limit),
+      },
     });
   } catch (error) {
     console.error('Error fetching employees:', error);
@@ -108,7 +107,9 @@ export const getAllEmployees = async (req: Request, res: Response, next: NextFun
 export const getEmployeeById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const conn = await createConnection();
-    const [rows] = await conn.execute<Employee[]>('SELECT * FROM employees WHERE id = ?', [req.params.id]);
+    const [rows] = await conn.execute<Employee[]>('SELECT * FROM employees WHERE id = ?', [
+      req.params.id,
+    ]);
     await conn.end();
     if (rows.length === 0) {
       return next(new AppError('Employee not found', 404));
@@ -126,7 +127,7 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
     // Check if employee exists
     const [existingEmployee] = await conn.execute<Employee[]>(
       'SELECT * FROM employees WHERE id = ?',
-      [req.params.id]
+      [req.params.id],
     );
 
     if (existingEmployee.length === 0) {
@@ -181,20 +182,20 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
     // Update employee with explicit SET clause
     await conn.execute<ResultSetHeader>(
       `UPDATE employees SET ${updateFields.join(', ')} WHERE id = ?`,
-      updateValues
+      updateValues,
     );
 
     // Get updated employee data
     const [updatedEmployee] = await conn.execute<Employee[]>(
       'SELECT * FROM employees WHERE id = ?',
-      [req.params.id]
+      [req.params.id],
     );
 
     await conn.end();
 
-    res.json({ 
+    res.json({
       message: 'Employee updated successfully',
-      data: updatedEmployee[0]
+      data: updatedEmployee[0],
     });
   } catch (error: any) {
     console.error('Error updating employee:', error);
@@ -205,7 +206,9 @@ export const updateEmployee = async (req: Request, res: Response, next: NextFunc
 export const deleteEmployee = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const conn = await createConnection();
-    const [result] = await conn.execute<ResultSetHeader>('DELETE FROM employees WHERE id = ?', [req.params.id]);
+    const [result] = await conn.execute<ResultSetHeader>('DELETE FROM employees WHERE id = ?', [
+      req.params.id,
+    ]);
     await conn.end();
     res.json({ message: 'Employee deleted successfully', data: result });
   } catch (error) {
@@ -216,7 +219,7 @@ export const deleteEmployee = async (req: Request, res: Response, next: NextFunc
 export const getEmployeeStats = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const conn = await createConnection();
-    
+
     // 1. Department wise highest salary
     const [departmentHighestSalary] = await conn.execute<RowDataPacket[]>(`
       SELECT 
@@ -271,11 +274,11 @@ export const getEmployeeStats = async (_req: Request, res: Response, next: NextF
     `);
 
     await conn.end();
-    
+
     const result = {
       departmentHighestSalary: departmentHighestSalary || [],
       salaryRangeCount: salaryRangeCount || [],
-      youngestByDepartment: youngestByDepartment || []
+      youngestByDepartment: youngestByDepartment || [],
     };
 
     res.json(result);
@@ -283,4 +286,4 @@ export const getEmployeeStats = async (_req: Request, res: Response, next: NextF
     console.error('Error in getEmployeeStats:', error);
     next(new AppError(error.message || 'Failed to fetch employee statistics', 500));
   }
-}; 
+};

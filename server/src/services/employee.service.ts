@@ -47,7 +47,7 @@ export const employeeService = {
         ORDER BY e.id DESC
         LIMIT ? OFFSET ?
       `;
-      
+
       // Clone params array and add pagination parameters
       const dataParams = [...params, limit, offset];
       const [rows] = await pool.query<RowDataPacket[]>(dataQuery, dataParams);
@@ -56,7 +56,7 @@ export const employeeService = {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       };
     } catch (error) {
       console.error('Error in getEmployees service:', error);
@@ -119,7 +119,11 @@ export const employeeService = {
       return {
         departmentHighestSalary: highestSalaries as { department: string; salary: number }[],
         salaryRangeCount: salaryRanges as { range: string; count: number }[],
-        youngestByDepartment: youngestEmployees as { department: string; name: string; age: number }[],
+        youngestByDepartment: youngestEmployees as {
+          department: string;
+          name: string;
+          age: number;
+        }[],
       };
     } catch (error) {
       await connection.rollback();
@@ -136,29 +140,28 @@ export const employeeService = {
        FROM employees e
        LEFT JOIN departments d ON e.department_id = d.id
        WHERE e.id = ?`,
-      [id]
+      [id],
     );
-    return rows[0] as Employee || null;
+    return (rows[0] as Employee) || null;
   },
 
   // Create new employee
-  createEmployee: async (data: Omit<Employee, 'id' | 'created_at' | 'modified_at'>): Promise<Employee> => {
-    const [result] = await pool.query<ResultSetHeader>(
-      'INSERT INTO employees SET ?',
-      data
-    );
+  createEmployee: async (
+    data: Omit<Employee, 'id' | 'created_at' | 'modified_at'>,
+  ): Promise<Employee> => {
+    const [result] = await pool.query<ResultSetHeader>('INSERT INTO employees SET ?', data);
     return employeeService.getEmployeeById(result.insertId) as Promise<Employee>;
   },
 
   // Update employee
   updateEmployee: async (
     id: number,
-    data: Partial<Omit<Employee, 'id' | 'created_at' | 'modified_at'>>
+    data: Partial<Omit<Employee, 'id' | 'created_at' | 'modified_at'>>,
   ): Promise<Employee | null> => {
-    const [result] = await pool.query<ResultSetHeader>(
-      'UPDATE employees SET ? WHERE id = ?',
-      [data, id]
-    );
+    const [result] = await pool.query<ResultSetHeader>('UPDATE employees SET ? WHERE id = ?', [
+      data,
+      id,
+    ]);
     if (result.affectedRows === 0) {
       return null;
     }
@@ -167,12 +170,9 @@ export const employeeService = {
 
   // Delete employee
   deleteEmployee: async (id: number): Promise<void> => {
-    const [result] = await pool.query<ResultSetHeader>(
-      'DELETE FROM employees WHERE id = ?',
-      [id]
-    );
+    const [result] = await pool.query<ResultSetHeader>('DELETE FROM employees WHERE id = ?', [id]);
     if (result.affectedRows === 0) {
       throw new AppError('Employee not found', 404);
     }
   },
-}; 
+};

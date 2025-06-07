@@ -1,0 +1,19 @@
+# Ignore build output
+dist/
+build/
+
+# Ignore dependencies
+node_modules/
+
+# Ignore environment files
+.env
+
+# Ignore compiled TypeScript
+*.js
+*.d.ts
+
+# Ignore specific files or folders
+public/assets/
+
+# Ignore all JSON files in a folder
+src/data/*.json
